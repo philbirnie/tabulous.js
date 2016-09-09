@@ -4,112 +4,139 @@
  * Further changes, comments: @aaronlumsden
  * Licensed under the MIT license
  */
-;(function ( $, window, document, undefined ) {
+;(function($, window, document, undefined) {
 
-    var pluginName = "tabulous",
-        defaults = {
-            effect: 'scale'
-        };
+  var pluginName = "tabulous",
+    defaults = {
+      effect: 'scale',
+      showFirst: true
+    };
 
-       // $('<style>body { background-color: red; color: white; }</style>').appendTo('head');
+  // $('<style>body { background-color: red; color: white; }</style>').appendTo('head');
 
-    function Plugin( element, options ) {
-        this.element = element;
-        this.$elem = $(this.element);
-        this.options = $.extend( {}, defaults, options );
-        this._defaults = defaults;
-        this._name = pluginName;
-        this.init();
-    }
+  function Plugin(element, options) {
+    this.element = element;
+    this.$elem = $(this.element);
+    this.options = $.extend({}, defaults, options);
+    this._defaults = defaults;
+    this._name = pluginName;
+    this.init();
+  }
 
-    Plugin.prototype = {
+  Plugin.prototype = {
 
-        init: function() {
+    init: function() {
 
-            var links = this.$elem.find('a');
-            var firstchild = this.$elem.find('li:first-child').find('a');
-            var lastchild = this.$elem.find('li:last-child').after('<span class="tabulousclear"></span>');
+      var $tabsContentContainer = this.$elem.find('.tabs__container');
 
-            if (this.options.effect == 'scale') {
-             tab_content = this.$elem.find('div').not(':first').not(':nth-child(1)').addClass('hidescale');
-            } else if (this.options.effect == 'slideLeft') {
-                 tab_content = this.$elem.find('div').not(':first').not(':nth-child(1)').addClass('hideleft');
-            } else if (this.options.effect == 'scaleUp') {
-                 tab_content = this.$elem.find('div').not(':first').not(':nth-child(1)').addClass('hidescaleup');
-            } else if (this.options.effect == 'flip') {
-                 tab_content = this.$elem.find('div').not(':first').not(':nth-child(1)').addClass('hideflip');
-            }
+      var $allContetDivs = $tabsContentContainer.children('div');
 
-            var firstdiv = this.$elem.find('#tabs_container');
-            var firstdivheight = firstdiv.find('div:first').height();
+      var $navigation = this.$elem.find('.tabs__navigation');
 
-            var alldivs = this.$elem.find('div:first').find('div');
+      var $navigationLinks = $navigation.children('li');
 
-            alldivs.css({'position': 'absolute','top':'40px'});
+      var $hideScaleElements = this.$elem.children('.tabs__container').children('div');
 
-            firstdiv.css('height',firstdivheight+'px');
+      if (this.options.showFirst) {
+        var firstNavigationElement = $navigationLinks.eq(0);
 
-            firstchild.addClass('tabulous_active');
+        $hideScaleElements = $hideScaleElements.not(':first');
 
-            links.bind('click', {myOptions: this.options}, function(e) {
-                e.preventDefault();
+        var firstdivheight = $tabsContentContainer.find('div:first').outerHeight(true);
 
-                var $options = e.data.myOptions;
-                var effect = $options.effect;
+        $tabsContentContainer.css('height', firstdivheight + 'px');
 
-                var mythis = $(this);
-                var thisform = mythis.parent().parent().parent();
-                var thislink = mythis.attr('href');
+        firstNavigationElement.addClass('tabulous_active');
+      }
 
+      $allContetDivs.css({'position': 'absolute'});
 
-                firstdiv.addClass('transition');
+      if (this.options.effect == 'scale') {
+        $hideScaleElements.addClass('hidescale');
+      } else if (this.options.effect == 'slideLeft') {
+        $hideScaleElements.addClass('hideleft');
+      } else if (this.options.effect == 'scaleUp') {
+        $hideScaleElements.addClass('hidescaleup');
+      } else if (this.options.effect == 'flip') {
+        $hideScaleElements.addClass('hideflip');
+      }
 
-                links.removeClass('tabulous_active');
-                mythis.addClass('tabulous_active');
-                thisdivwidth = thisform.find('div'+thislink).height();
+      $navigationLinks.bind('click', {myOptions: this.options}, function(e) {
+        e.preventDefault();
 
-                if (effect == 'scale') {
-                    alldivs.removeClass('showscale').addClass('make_transist').addClass('hidescale');
-                    thisform.find('div'+thislink).addClass('make_transist').addClass('showscale');
-                } else if (effect == 'slideLeft') {
-                    alldivs.removeClass('showleft').addClass('make_transist').addClass('hideleft');
-                    thisform.find('div'+thislink).addClass('make_transist').addClass('showleft');
-                } else if (effect == 'scaleUp') {
-                    alldivs.removeClass('showscaleup').addClass('make_transist').addClass('hidescaleup');
-                    thisform.find('div'+thislink).addClass('make_transist').addClass('showscaleup');
-                } else if (effect == 'flip') {
-                    alldivs.removeClass('showflip').addClass('make_transist').addClass('hideflip');
-                    thisform.find('div'+thislink).addClass('make_transist').addClass('showflip');
-                }
+        var $options = e.data.myOptions;
+        var effect = $options.effect;
 
+        var $clickedLink = $(this);
+        var thislink = $clickedLink.children('a').eq(0).attr('href');
+        var thisdivwidth;
 
-                firstdiv.css('height',thisdivwidth+'px');
+        var linkWasOpen = $clickedLink.hasClass('tabulous_active');
 
-                
+        $tabsContentContainer.addClass('transition');
 
+        $navigationLinks.removeClass('tabulous_active');
+        if (!linkWasOpen) {
+          $clickedLink.addClass('tabulous_active');
+          thisdivwidth = $tabsContentContainer.find('div' + thislink).outerHeight(true);
 
-            });
-
-           
-
-
-         
-            
-        },
-
-        yourOtherFunction: function(el, options) {
-            // some logic
+          if (effect == 'scale') {
+            $allContetDivs.removeClass('showscale').addClass('make_transist').addClass('hidescale');
+            $tabsContentContainer.find('div' + thislink).addClass('make_transist').addClass('showscale');
+          } else if (effect == 'slideLeft') {
+            $allContetDivs.removeClass('showleft').addClass('make_transist').addClass('hideleft');
+            $tabsContentContainer.find('div' + thislink).addClass('make_transist').addClass('showleft');
+          } else if (effect == 'scaleUp') {
+            $allContetDivs.removeClass('showscaleup').addClass('make_transist').addClass('hidescaleup');
+            $tabsContentContainer.find('div' + thislink).addClass('make_transist').addClass('showscaleup');
+          } else if (effect == 'flip') {
+            $allContetDivs.removeClass('showflip').addClass('make_transist').addClass('hideflip');
+            $tabsContentContainer.find('div' + thislink).addClass('make_transist').addClass('showflip');
+          }
+        } else {
+          $allContetDivs.removeClass('showscale').addClass('make_transist').addClass('hidescale');
+          thisdivwidth = 0;
         }
+
+        $tabsContentContainer.css('height', thisdivwidth + 'px');
+
+      });
+    }
+  };
+
+  // A really lightweight plugin wrapper around the constructor,
+  // preventing against multiple instantiations
+  $.fn[pluginName] = function(options) {
+    return this.each(function() {
+      new Plugin(this, options);
+    });
+  };
+
+})(jQuery, window, document);
+
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+const debounce = function(func, wait, immediate) {
+  let timeout;
+  return function() {
+    const args = arguments;
+
+    const later = function() {
+      timeout = null;
+      if (!immediate) {
+        func.apply(this, args);
+      }
     };
 
-    // A really lightweight plugin wrapper around the constructor,
-    // preventing against multiple instantiations
-    $.fn[pluginName] = function ( options ) {
-        return this.each(function () {
-            new Plugin( this, options );
-        });
-    };
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) {
+      func.apply(this, args);
+    }
+  };
+};
 
-})( jQuery, window, document );
-
-
+module.exports = debounce;

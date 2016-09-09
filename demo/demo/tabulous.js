@@ -29,6 +29,7 @@
             var links = this.$elem.find('a');
             var firstchild = this.$elem.find('li:first-child').find('a');
             var lastchild = this.$elem.find('li:last-child').after('<span class="tabulousclear"></span>');
+            var tab_content;
 
             if (this.options.effect == 'scale') {
              tab_content = this.$elem.find('div').not(':first').not(':nth-child(1)').addClass('hidescale');
@@ -50,6 +51,7 @@
             firstdiv.css('height',firstdivheight+'px');
 
             firstchild.addClass('tabulous_active');
+            firstchild.parent().addClass('tabulous_active');
 
             links.bind('click', {myOptions: this.options}, function(e) {
                 e.preventDefault();
@@ -65,7 +67,11 @@
                 firstdiv.addClass('transition');
 
                 links.removeClass('tabulous_active');
+                for(var i = 0; i < links.length; i++) {
+                    links[i].parent().removeClass('active');
+                }
                 mythis.addClass('tabulous_active');
+                mythis.parent().addClass('tabulous_active');
                 thisdivwidth = thisform.find('div'+thislink).height();
 
                 if (effect == 'scale') {
@@ -85,16 +91,16 @@
 
                 firstdiv.css('height',thisdivwidth+'px');
 
-                
+
 
 
             });
 
-           
 
 
-         
-            
+
+
+
         },
 
         yourOtherFunction: function(el, options) {
